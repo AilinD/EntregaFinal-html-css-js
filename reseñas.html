@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tienda Automotriz | Reseñas</title>
+  <meta name="description" content="Opiniones de clientes de autos y camionetas." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <nav class="nav" aria-label="Navegación principal">
+      <a class="brand" href="index.html#inicio">Tienda Automotriz</a>
+      <ul class="nav-list">
+        <li><a href="index.html#inicio">Inicio</a></li>
+        <li><a href="productos.html">Autos y Camionetas</a></li>
+        <li><a href="resenas.html">Reseñas</a></li>
+        <li><a href="index.html#carrito" aria-describedby="cart-count">Carrito <span id="cart-count" class="cart-badge" aria-live="polite">0</span></a></li>
+        <li><a href="index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="contenido" tabindex="-1">
+    <section id="resenas" class="section reviews-section" aria-labelledby="resenas-heading">
+      <div class="container">
+        <h2 id="resenas-heading">Reseñas de Clientes</h2>
+        <div class="reviews-grid">
+          <!-- Masculinos -->
+          <article class="review" aria-label="Reseña de Luis">
+            <div class="review-header">
+              <img class="avatar" src="https://i.pravatar.cc/100?img=12" alt="Avatar de Luis" />
+              <div><strong>Luis</strong><div class="stars" aria-label="4 estrellas">★★★★☆</div></div>
+            </div>
+            <p class="review-text">Buena financiación y servicio post venta.</p>
+          </article>
+          <article class="review" aria-label="Reseña de Diego">
+            <div class="review-header">
+              <img class="avatar" src="https://i.pravatar.cc/100?img=25" alt="Avatar de Diego" />
+              <div><strong>Diego</strong><div class="stars" aria-label="4 estrellas">★★★★☆</div></div>
+            </div>
+            <p class="review-text">Gran variedad de camionetas para trabajo.</p>
+          </article>
+          <!-- Femeninos -->
+          <article class="review" aria-label="Reseña de Carla">
+            <div class="review-header">
+              <img class="avatar" src="https://i.pravatar.cc/100?img=5" alt="Avatar de Carla" />
+              <div><strong>Carla</strong><div class="stars" aria-label="5 estrellas">★★★★★</div></div>
+            </div>
+            <p class="review-text">Excelente atención y variedad de modelos.</p>
+          </article>
+          <article class="review" aria-label="Reseña de Ana">
+            <div class="review-header">
+              <img class="avatar" src="https://i.pravatar.cc/100?img=15" alt="Avatar de Ana" />
+              <div><strong>Ana</strong><div class="stars" aria-label="5 estrellas">★★★★★</div></div>
+            </div>
+            <p class="review-text">Proceso de compra muy claro y rápido.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>© <span id="year"></span> Tienda Automotriz. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

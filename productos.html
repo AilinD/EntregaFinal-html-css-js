@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tienda Automotriz | Autos y Camionetas</title>
+  <meta name="description" content="Catálogo de autos y camionetas. Añade al carrito y envía tu pedido." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <nav class="nav" aria-label="Navegación principal">
+      <a class="brand" href="index.html#inicio">Tienda Automotriz</a>
+      <ul class="nav-list">
+        <li><a href="index.html#inicio">Inicio</a></li>
+        <li><a href="productos.html">Autos y Camionetas</a></li>
+        <li><a href="resenas.html">Reseñas</a></li>
+        <li><a href="index.html#carrito" aria-describedby="cart-count">Carrito <span id="cart-count" class="cart-badge" aria-live="polite">0</span></a></li>
+        <li><a href="index.html#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="contenido" tabindex="-1">
+    <section class="section hero" aria-labelledby="autos-hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <h1 id="autos-hero">Catálogo de Autos y Camionetas</h1>
+          <p>Elige tu vehículo y agrégalo al carrito para enviar tu pedido.</p>
+        </div>
+        <div class="hero-media">
+          <img src="https://images.unsplash.com/photo-1519641471654-76ce0107afc9?w=1200&q=80" alt="SUV en carretera" />
+        </div>
+      </div>
+    </section>
+
+    <section id="autos-camionetas" class="section products-section" aria-labelledby="autos-heading">
+      <div class="container">
+        <h2 id="autos-heading">Autos y Camionetas</h2>
+        <p class="section-desc">Modelos destacados. Pulsa “Agregar” para añadir al carrito.</p>
+        <div id="product-list" class="cards" aria-live="polite">
+          <!-- 4 productos estáticos compatibles con script.js -->
+          <article class="card" data-id="1001">
+            <img src="https://images.unsplash.com/photo-1549923746-7d8a0fbbf086?w=800&q=80" alt="Sedán compacto blanco en la ciudad" loading="lazy" />
+            <div class="card-body">
+              <h3>Sedán Compacto 1.6L</h3>
+              <p class="truncate">Eficiente, ideal para ciudad y bajo consumo.</p>
+              <div class="price-row">
+                <span class="price">$14500.00</span>
+                <button type="button" class="btn agregar-al-carrito"
+                  data-id="1001" data-titulo="Sedán Compacto 1.6L"
+                  data-precio="14500" data-imagen="https://images.unsplash.com/photo-1549923746-7d8a0fbbf086?w=800&q=80">Agregar</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-id="1002">
+            <img src="https://images.unsplash.com/photo-1519641471654-76ce0107afc9?w=800&q=80" alt="SUV azul en carretera" loading="lazy" />
+            <div class="card-body">
+              <h3>SUV 2.0L AWD</h3>
+              <p class="truncate">Tracción integral, espacio y seguridad.</p>
+              <div class="price-row">
+                <span class="price">$26500.00</span>
+                <button type="button" class="btn agregar-al-carrito"
+                  data-id="1002" data-titulo="SUV 2.0L AWD"
+                  data-precio="26500" data-imagen="https://images.unsplash.com/photo-1519641471654-76ce0107afc9?w=800&q=80">Agregar</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-id="1003">
+            <img src="https://images.unsplash.com/photo-1552519507-f6b3f8f2e6f8?w=800&q=80" alt="Camioneta pickup roja 4x4" loading="lazy" />
+            <div class="card-body">
+              <h3>Camioneta Pickup 4x4</h3>
+              <p class="truncate">Potencia y capacidad de carga para trabajo.</p>
+              <div class="price-row">
+                <span class="price">$32900.00</span>
+                <button type="button" class="btn agregar-al-carrito"
+                  data-id="1003" data-titulo="Camioneta Pickup 4x4"
+                  data-precio="32900" data-imagen="https://images.unsplash.com/photo-1552519507-f6b3f8f2e6f8?w=800&q=80">Agregar</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-id="1004">
+            <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=80" alt="Coupé deportivo negro" loading="lazy" />
+            <div class="card-body">
+              <h3>Coupé Deportivo 2.0T</h3>
+              <p class="truncate">Estilo y rendimiento con motor turbo.</p>
+              <div class="price-row">
+                <span class="price">$29900.00</span>
+                <button type="button" class="btn agregar-al-carrito"
+                  data-id="1004" data-titulo="Coupé Deportivo 2.0T"
+                  data-precio="29900" data-imagen="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=80">Agregar</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="carrito" class="section cart-section" aria-labelledby="carrito-heading">
+      <div class="container">
+        <h2 id="carrito-heading">Carrito</h2>
+        <div id="cart-items" class="cart-items" aria-live="polite"></div>
+        <div class="cart-summary" aria-live="polite">
+          <span>Total: <strong id="cart-total">$0.00</strong></span>
+          <div class="actions" style="display:flex; gap:10px;">
+            <button id="clear-cart" type="button" class="btn-outline">Vaciar Carrito</button>
+            <button id="send-order" type="button" class="btn">Enviar pedido</button>
+          </div>
+        </div>
+        <p id="cart-empty" class="cart-empty" hidden>El carrito está vacío.</p>
+
+        <form id="order-form" action="https://formspree.io/f/xeorgweb" method="POST" hidden>
+          <input type="hidden" name="_subject" value="Nuevo pedido de Autos y Camionetas" />
+          <input type="hidden" name="_language" value="es" />
+          <input type="text" name="name" id="order-name" placeholder="Nombre" />
+          <input type="email" name="email" id="order-email" placeholder="Correo electrónico" />
+          <textarea name="order" id="order-data"></textarea>
+        </form>
+        <p id="order-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>© <span id="year"></span> Tienda Automotriz. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="script.1js" defer></script>
+</body>
+</html>

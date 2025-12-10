@@ -4,9 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Contacto</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <script src="js/script.js"></script>
-
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="container">
@@ -41,7 +39,7 @@
   </main>
 
   <script>
-    // Env�o opcional con fetch (permite mostrar mensajes sin salir de la p�gina)
+
     const form = document.getElementById('contact-form');
     const status = document.getElementById('status');
 
@@ -57,10 +55,10 @@
         });
 
         if (res.ok) {
-          status.textContent = 'Gracias! Tu mensaje fue enviado.';
+          status.textContent = '�Gracias! Tu mensaje fue enviado.';
           form.reset();
         } else {
-          let msg = 'Ocurrio un error al enviar.';
+          let msg = 'Ocurri� un error al enviar.';
           try {
             const data = await res.json();
             if (data && Array.isArray(data.errors)) {
@@ -70,13 +68,13 @@
           status.textContent = msg;
         }
       } catch (err) {
-        status.textContent = 'No se pudo enviar. Verifica tu conexion.';
+        status.textContent = 'No se pudo enviar. Verifica tu conexión.';
       }
     });
   </script>
 
   <noscript>
-    <p>El formulario se enviar� directamente a Formspree.</p>
+    <p>El formulario se enviará directamente a Formspree.</p>
   </noscript>
 </body>
 </html>

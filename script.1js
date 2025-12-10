@@ -1,0 +1,274 @@
+// Interactividad principal del supermercado (funciones en castellano)
+// Carga de productos con fallback, carrito con persistencia, envío de pedido a Formspree.
+
+// Configuración: autos y camionetas (no dependemos de API para evitar inconsistencias)
+const URL_API = null; // deshabilitado
+const PRODUCTOS_FALLBACK = [
+  {
+    id: 1001,
+    titulo: "Sedán Compacto 1.6L",
+    precio: 14500,
+    imagen: "https://images.unsplash.com/photo-1549923746-7d8a0fbbf086?w=800&q=80",
+    descripcion: "Eficiente, ideal para ciudad y bajo consumo."
+  },
+  {
+    id: 1002,
+    titulo: "SUV 2.0L AWD",
+    precio: 26500,
+    imagen: "https://images.unsplash.com/photo-1519641471654-76ce0107afc9?w=800&q=80",
+    descripcion: "Tracción integral, espacio y seguridad."
+  },
+  {
+    id: 1003,
+    titulo: "Camioneta Pickup 4x4",
+    precio: 32900,
+    imagen: "https://images.unsplash.com/photo-1552519507-f6b3f8f2e6f8?w=800&q=80",
+    descripcion: "Potencia y capacidad de carga para trabajo."
+  },
+  {
+    id: 1004,
+    titulo: "Coupé Deportivo 2.0T",
+    precio: 29900,
+    imagen: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=80",
+    descripcion: "Estilo y rendimiento con motor turbo."
+  }
+];
+
+// Persistencia del carrito: elige 'local' o 'session'
+const ALMACEN_CARRITO = 'local'; // 'local' mantiene tras cerrar navegador; 'session' solo mientras la pestaña esté abierta
+function obtenerAlmacen() {
+  return ALMACEN_CARRITO === 'local' ? window.localStorage : window.sessionStorage;
+}
+
+// Referencias DOM (usa ids preparados en index.html y productos.html)
+const refs = {
+  listaProductos: document.getElementById('product-list') // si usas páginas por categoría, usa product-list-*
+};
+const el = {
+  itemsCarrito: document.getElementById('cart-items'),
+  totalCarrito: document.getElementById('cart-total'),
+  contadorCarrito: document.getElementById('cart-count'),
+  vacioCarrito: document.getElementById('cart-empty'),
+  limpiarCarrito: document.getElementById('clear-cart'),
+  enviarPedidoBtn: document.getElementById('send-order'),
+  formPedido: document.getElementById('order-form'),
+  datosPedido: document.getElementById('order-data'),
+  estadoPedido: document.getElementById('order-status'),
+  nombrePedido: document.getElementById('order-name'),
+  emailPedido: document.getElementById('order-email'),
+  formContacto: document.getElementById('contact-form'),
+  estadoContacto: document.getElementById('status'),
+  anio: document.getElementById('year')
+};
+
+// Estado
+let carrito = cargarCarrito();
+renderizarCarrito();
+
+// Carga de productos: usa solo el fallback
+async function cargarProductos() {
+  if (!refs.listaProductos) {
+    console.warn('No se encontró el contenedor de productos (id="product-list").');
+    return;
+  }
+  refs.listaProductos.setAttribute('aria-busy', 'true');
+  try {
+    renderizarProductos(PRODUCTOS_FALLBACK);
+  } finally {
+    refs.listaProductos.setAttribute('aria-busy', 'false');
+  }
+}
+
+function renderizarProductos(productos) {
+  if (!refs.listaProductos) return;
+  refs.listaProductos.innerHTML = productos.map(p => `
+    <article class="card" data-id="${p.id}">
+      <img src="${p.imagen}" alt="${escaparHtml(p.titulo)}" loading="lazy" />
+      <div class="card-body">
+        <h3>${escaparHtml(p.titulo)}</h3>
+        <p class="truncate">${escaparHtml(p.descripcion)}</p>
+        <div class="price-row">
+          <span class="price">$${p.precio.toFixed(2)}</span>
+          <button type="button" class="btn agregar-al-carrito"
+            data-id="${p.id}" data-titulo="${escaparHtml(p.titulo)}"
+            data-precio="${p.precio.toFixed(2)}" data-imagen="${p.imagen}">Agregar</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+// Carrito: persistencia y operaciones
+function cargarCarrito() {
+  try {
+    const raw = obtenerAlmacen().getItem('carrito');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+function guardarCarrito() {
+  try {
+    obtenerAlmacen().setItem('carrito', JSON.stringify(carrito));
+  } catch {}
+}
+
+function agregarProducto(item) {
+  const existente = carrito.find(c => c.id === item.id);
+  if (existente) existente.qty += 1; else carrito.push({ ...item, qty: 1 });
+  guardarCarrito();
+  renderizarCarrito();
+}
+function actualizarCantidad(id, qty) {
+  const item = carrito.find(c => c.id === id);
+  if (item) {
+    item.qty = qty < 1 ? 1 : qty;
+    guardarCarrito();
+    renderizarCarrito();
+  }
+}
+function eliminarProducto(id) {
+  carrito = carrito.filter(c => c.id !== id);
+  guardarCarrito();
+  renderizarCarrito();
+}
+function limpiarCarrito() {
+  carrito = [];
+  guardarCarrito();
+  renderizarCarrito();
+}
+
+function renderizarCarrito() {
+  if (el.itemsCarrito && el.vacioCarrito) {
+    if (!carrito.length) {
+      el.itemsCarrito.innerHTML = '';
+      el.vacioCarrito.hidden = false;
+    } else {
+      el.vacioCarrito.hidden = true;
+      el.itemsCarrito.innerHTML = carrito.map(item => {
+        const subtotal = (item.qty * item.precio).toFixed(2);
+        return `<div class="cart-item" data-id="${item.id}">
+          <img src="${item.imagen}" alt="${escaparHtml(item.titulo)}" class="cart-thumb" />
+          <div class="cart-info">
+            <h4>${escaparHtml(item.titulo)}</h4>
+            <div class="cart-meta">
+              <label>Qty <input type="number" min="1" value="${item.qty}" class="qty-input" data-id="${item.id}" /></label>
+              <span class="unit-price">$${Number(item.precio).toFixed(2)}</span>
+              <span class="line-total">$${subtotal}</span>
+            </div>
+          </div>
+          <button type="button" class="remove-btn" aria-label="Eliminar ${escaparHtml(item.titulo)}" data-id="${item.id}">×</button>
+        </div>`;
+      }).join('');
+    }
+  }
+  const total = carrito.reduce((s, i) => s + i.qty * i.precio, 0).toFixed(2);
+  el.totalCarrito && (el.totalCarrito.textContent = `$${total}`);
+  el.contadorCarrito && (el.contadorCarrito.textContent = carrito.reduce((s, i) => s + i.qty, 0));
+}
+
+// Envío de pedido a Formspree
+el.enviarPedidoBtn && el.formPedido && el.datosPedido && el.enviarPedidoBtn.addEventListener('click', async () => {
+  if (!carrito.length) {
+    el.estadoPedido && (el.estadoPedido.textContent = 'El carrito está vacío.');
+    return;
+  }
+  const lineas = carrito.map(i => `- ${i.titulo} | Cantidad: ${i.qty} | Unit: $${Number(i.precio).toFixed(2)} | Subtotal: $${(i.qty * i.precio).toFixed(2)}`);
+  const total = carrito.reduce((sum, i) => sum + i.qty * i.price, 0).toFixed(2);
+  const nombre = (el.nombrePedido?.value || '').trim();
+  const correo = (el.emailPedido?.value || '').trim();
+  const resumen =
+    `Pedido Supermercado\n` +
+    (nombre ? `Cliente: ${nombre}\n` : '') +
+    (correo ? `Email: ${correo}\n` : '') +
+    `Items:\n${lineas.join('\n')}\n` +
+    `Total: $${total}\n` +
+    `Fecha: ${new Date().toLocaleString()}`;
+  el.datosPedido.value = resumen;
+
+  el.estadoPedido && (el.estadoPedido.textContent = 'Enviando pedido...');
+  try {
+    const res = await fetch(el.formPedido.action, {
+      method: 'POST',
+      body: new FormData(el.formPedido),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      el.estadoPedido && (el.estadoPedido.textContent = '¡Pedido enviado! Te contactaremos por correo.');
+    } else {
+      let msg = 'Error al enviar el pedido.';
+      try {
+        const data = await res.json();
+        if (data && Array.isArray(data.errors)) {
+          msg = data.errors.map(e => e.message).join(', ');
+        }
+      } catch {}
+      el.estadoPedido && (el.estadoPedido.textContent = msg);
+    }
+  } catch {
+    el.estadoPedido && (el.estadoPedido.textContent = 'No se pudo enviar. Verifica tu conexión.');
+  }
+});
+
+// Validación contacto (opcional)
+el.formContacto && el.formContacto.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  el.estadoContacto && (el.estadoContacto.textContent = 'Enviando...');
+  try {
+    const res = await fetch(el.formContacto.action, { method: 'POST', body: new FormData(el.formContacto), headers: { 'Accept': 'application/json' } });
+    el.estadoContacto && (el.estadoContacto.textContent = res.ok ? '¡Gracias! Mensaje enviado.' : 'Error en el envío.');
+    res.ok && el.formContacto.reset();
+  } catch {
+    el.estadoContacto && (el.estadoContacto.textContent = 'No se pudo enviar. Verifica tu conexión.');
+  }
+});
+
+// Eventos
+document.addEventListener('click', e => {
+  const btnAdd = e.target.closest('.agregar-al-carrito');
+  if (btnAdd) {
+    agregarProducto({
+      id: Number(btnAdd.dataset.id),
+      titulo: btnAdd.dataset.titulo,
+      precio: Number(btnAdd.dataset.precio),
+      imagen: btnAdd.dataset.imagen
+    });
+  }
+  const btnRemove = e.target.closest('.remove-btn');
+  if (btnRemove) eliminarProducto(Number(btnRemove.dataset.id));
+});
+el.itemsCarrito && el.itemsCarrito.addEventListener('input', e => {
+  const input = e.target.closest('.qty-input');
+  if (input) actualizarCantidad(Number(input.dataset.id), Number(input.value));
+});
+el.limpiarCarrito && el.limpiarCarrito.addEventListener('click', () => limpiarCarrito());
+
+// Utilidades
+function escaparHtml(str) {
+  return String(str).replace(/[&<>'"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
+}
+function habilitarScrollSuave() {
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    });
+  });
+}
+habilitarScrollSuave();
+el.anio && (el.anio.textContent = new Date().getFullYear());
+
+// Alias para compatibilidad con nombres anteriores (si alguna página aún los usa)
+function addToCart(i) { agregarProducto(i); }
+function updateQty(id, qty) { actualizarCantidad(id, qty); }
+function removeFromCart(id) { eliminarProducto(id); }
+function clearCart() { limpiarCarrito(); }
+function renderCart() { renderizarCarrito(); }
+
+// Inicialización
+cargarProductos();
